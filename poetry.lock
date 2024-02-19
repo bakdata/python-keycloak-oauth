@@ -559,7 +559,7 @@ files = [
 name = "starlette"
 version = "0.27.0"
 description = "The little ASGI library that shines."
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "starlette-0.27.0-py3-none-any.whl", hash = "sha256:918416370e846586541235ccd38a474c08b80443ed31c578a418e2209b3eef91"},
@@ -613,4 +613,4 @@ starlette = ["starlette-admin"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d297fae355b919dd9446db1dc0b3876005ea38bc914c043418172a0f3a7d0b4b"
+content-hash = "64d061505d4ee8cb9db8342d06d28ee354988415f3e59758f0ee87082de3a3ed"
