@@ -608,9 +608,9 @@ files = [
 
 [extras]
 fastapi = ["fastapi"]
-starlette = ["starlette-admin"]
+starlette-admin = ["starlette-admin"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "64d061505d4ee8cb9db8342d06d28ee354988415f3e59758f0ee87082de3a3ed"
+content-hash = "cdafe613653b5e07b8e90c25e034cd96dac3e1a058bfb22c928a343368786e2c"

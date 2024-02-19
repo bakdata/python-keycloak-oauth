@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python-keycloak-oauth"
+name = "keycloak-oauth"
 version = "0.1.0"
 description = "Keycloak OAuth client for Python projects"
 authors = ["bakdata <opensource@bakdata.com>"]
