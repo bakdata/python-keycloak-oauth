@@ -1,6 +1,7 @@
 from typing import Sequence
-from fastapi import HTTPException, Request
-from fastapi.responses import RedirectResponse
+from starlette.exceptions import HTTPException
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
 from starlette.routing import Route
 from starlette_admin.auth import AdminUser, AuthProvider, login_not_required
 from starlette_admin.base import BaseAdmin
