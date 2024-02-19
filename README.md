@@ -75,5 +75,4 @@ We are happy if you want to contribute to this project. If you find any bugs or 
 
 ## License
 
-This project is licensed under the MIT license.
-Have a look at the [LICENSE](https://github.com/bakdata/{{repo-name}}/blob/master/LICENSE) for more details.
+This project is licensed under the MIT license. Have a look at the [LICENSE](LICENSE.md) for more details.
