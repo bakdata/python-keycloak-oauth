@@ -1,6 +1,6 @@
 # starlette-keycloak
 
-Keycloak OAuth2 client for Python projects with optional integrations for FastAPI & Starlette-Admin.
+Keycloak OAuth client for Python projects with optional integrations for [FastAPI](https://github.com/tiangolo/fastapi) & [Starlette-Admin](https://github.com/jowilf/starlette-admin).
 
 ## Getting started
 
