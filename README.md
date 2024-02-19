@@ -29,7 +29,7 @@ app.include_router(keycloak.router, prefix="/auth")
 ### Starlette-Admin
 
 ```python
-from fastapi import FastAPI
+from starlette_admin.contrib.sqla import Admin
 from backend.settings import settings, BASE_URL  # secrets
 from keycloak.oauth import KeycloakOAuth2
 from keycloak.starlette_admin import KeycloakAuthProvider
