@@ -1,6 +1,6 @@
 # starlette-keycloak
 
-Keycloak authentication for FastAPI & Starlette-Admin projects.
+Keycloak OAuth2 client for Python projects with optional integrations for FastAPI & Starlette-Admin.
 
 ## Getting started
 
