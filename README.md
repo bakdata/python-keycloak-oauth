@@ -6,6 +6,10 @@ Keycloak authentication for FastAPI & Starlette-Admin projects.
 
 ### FastAPI
 
+```sh
+pip install starlette-keycloak[fastapi]
+```
+
 ```python
 from fastapi import FastAPI
 from backend.settings import settings, BASE_URL  # secrets
@@ -27,6 +31,10 @@ app.include_router(keycloak.router, prefix="/auth")
 ```
 
 ### Starlette-Admin
+
+```sh
+pip install starlette-keycloak[starlette]
+```
 
 ```python
 from starlette_admin.contrib.sqla import Admin
