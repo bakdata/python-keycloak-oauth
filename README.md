@@ -2,7 +2,7 @@
 
 Keycloak authentication for FastAPI & Starlette-Admin projects.
 
-## Usage
+## Getting started
 
 ### FastAPI
 
@@ -63,3 +63,18 @@ admin = Admin(
     auth_provider=KeycloakAuthProvider(keycloak),
 )
 ```
+
+## Development
+
+If you want to contribute to this project, you can simply clone the repository and run `poetry install`.
+
+Please also run `pre-commit install` for linting and enforcing a consistent code style.
+
+## Contributing
+
+We are happy if you want to contribute to this project. If you find any bugs or have suggestions for improvements, please open an issue. We are also happy to accept your PRs. Just open an issue beforehand and let us know what you want to do and why.
+
+## License
+
+This project is licensed under the MIT license.
+Have a look at the [LICENSE](https://github.com/bakdata/{{repo-name}}/blob/master/LICENSE) for more details.
