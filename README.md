@@ -1,13 +1,13 @@
-# starlette-keycloak
+# python-keycloak-oauth
 
-Keycloak authentication for FastAPI & Starlette-Admin projects.
+Keycloak OAuth client for Python projects with optional integrations for [FastAPI](https://github.com/tiangolo/fastapi) & [Starlette-Admin](https://github.com/jowilf/starlette-admin).
 
 ## Getting started
 
 ### FastAPI
 
 ```sh
-pip install starlette-keycloak[fastapi]
+pip install python-keycloak-oauth[fastapi]
 ```
 
 ```python
@@ -22,24 +22,23 @@ keycloak = KeycloakOAuth2(
     client_kwargs=settings.keycloak.client_kwargs,
     base_url=BASE_URL,
 )
-# set up the API endpoints
+# create router and register API endpoints
 keycloak.setup_fastapi_routes()
 
-
 app = FastAPI()
-
 app.include_router(keycloak.router, prefix="/auth")
-
-# we now expose the API endpoints for Keycloak:
-# /auth/login: redirect to Keycloak login page
-# /auth/callback: authorize User with Keycloak access token
-# /auth/logout: deauthorize User and redirect to logout page
 ```
+
+We now expose the API endpoints for Keycloak:
+
+- `/auth/login`: redirect to Keycloak login page
+- `/auth/callback`: authorize user with Keycloak access token
+- `/auth/logout`: deauthorize user and redirect to the logout page
 
 ### Starlette-Admin
 
 ```sh
-pip install starlette-keycloak[starlette]
+pip install python-keycloak-oauth[starlette]
 ```
 
 ```python
@@ -76,5 +75,4 @@ We are happy if you want to contribute to this project. If you find any bugs or 
 
 ## License
 
-This project is licensed under the MIT license.
-Have a look at the [LICENSE](https://github.com/bakdata/{{repo-name}}/blob/master/LICENSE) for more details.
+This project is licensed under the MIT license. Have a look at the [LICENSE](LICENSE.md) for more details.

@@ -43,6 +43,7 @@ class KeycloakOAuth2:
         self.keycloak = oauth.keycloak
 
     def setup_fastapi_routes(self) -> None:
+        """Create FastAPI router and register API endpoints."""
         import fastapi
 
         self.router = fastapi.APIRouter()
@@ -53,6 +54,7 @@ class KeycloakOAuth2:
     async def login_page(
         self, request: Request, redirect_target: str | None = None
     ) -> RedirectResponse:
+        """Redirect to Keycloak login page."""
         redirect_uri = (
             URL(redirect_target)
             if redirect_target
@@ -63,6 +65,7 @@ class KeycloakOAuth2:
         return await self.keycloak.authorize_redirect(request, redirect_uri)
 
     async def auth(self, request: Request) -> RedirectResponse:
+        """Authorize user with Keycloak access token."""
         token = await self.keycloak.authorize_access_token(request)
         claims = await self.parse_claims(token)
         user = User(
@@ -77,9 +80,9 @@ class KeycloakOAuth2:
 
     async def parse_claims(self, token: dict[str, Any]) -> JWTClaims:
         metadata = await self.keycloak.load_server_metadata()
-        alg_values = metadata.get("id_token_signing_alg_values_supported")
-        if not alg_values:
-            alg_values = ["RS256"]
+        alg_values: list[str] = metadata.get(
+            "id_token_signing_alg_values_supported"
+        ) or ["RS256"]
         jwt = JsonWebToken(alg_values)
         jwk_set = await self.keycloak.fetch_jwk_set()
         claims = jwt.decode(
@@ -89,6 +92,7 @@ class KeycloakOAuth2:
         return claims
 
     async def logout(self, request: Request) -> RedirectResponse:
+        """Deauthorize user and redirect to logout page."""
         request.session.pop("user", None)
         return RedirectResponse(self._logout_page)
 

@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "starlette-keycloak"
+name = "python-keycloak-oauth"
 version = "0.1.0"
-description = "Keycloak OAuth provider for Starlette / FastAPI projects"
+description = "Keycloak OAuth client for Python projects"
 authors = ["bakdata <opensource@bakdata.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/bakdata/starlette-keycloak"
+repository = "https://github.com/bakdata/python-keycloak-oauth"
 packages = [{ include = "keycloak" }]
 
 [tool.poetry.dependencies]
@@ -20,12 +20,6 @@ starlette-admin = { version = "^0.13.2", optional = true }
 [tool.poetry.extras]
 fastapi = ["fastapi"]
 starlette = ["starlette-admin"]
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.2.2"
-pre-commit = "^3.6.2"
-pyright = "^1.1.350"
-pytest = "^8.0.1"
 
 [build-system]
 requires = ["poetry-core"]
