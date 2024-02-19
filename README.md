@@ -22,19 +22,18 @@ keycloak = KeycloakOAuth2(
     client_kwargs=settings.keycloak.client_kwargs,
     base_url=BASE_URL,
 )
-# set up the API endpoints
+# create router and register API endpoints
 keycloak.setup_fastapi_routes()
 
-
 app = FastAPI()
-
 app.include_router(keycloak.router, prefix="/auth")
-
-# we now expose the API endpoints for Keycloak:
-# /auth/login: redirect to Keycloak login page
-# /auth/callback: authorize user with Keycloak access token
-# /auth/logout: deauthorize user and redirect to logout page
 ```
+
+We now expose the API endpoints for Keycloak:
+
+- `/auth/login`: redirect to Keycloak login page
+- `/auth/callback`: authorize user with Keycloak access token
+- `/auth/logout`: deauthorize user and redirect to the logout page
 
 ### Starlette-Admin
 

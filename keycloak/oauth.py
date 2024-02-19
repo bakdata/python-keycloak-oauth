@@ -43,7 +43,7 @@ class KeycloakOAuth2:
         self.keycloak = oauth.keycloak
 
     def setup_fastapi_routes(self) -> None:
-        """Create FastAPI router and registere API endpoints."""
+        """Create FastAPI router and register API endpoints."""
         import fastapi
 
         self.router = fastapi.APIRouter()
