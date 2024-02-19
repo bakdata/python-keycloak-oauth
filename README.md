@@ -32,8 +32,8 @@ app.include_router(keycloak.router, prefix="/auth")
 
 # we now expose the API endpoints for Keycloak:
 # /auth/login: redirect to Keycloak login page
-# /auth/callback: authorize User with Keycloak access token
-# /auth/logout: deauthorize User and redirect to logout page
+# /auth/callback: authorize user with Keycloak access token
+# /auth/logout: deauthorize user and redirect to logout page
 ```
 
 ### Starlette-Admin
