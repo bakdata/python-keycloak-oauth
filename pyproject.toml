@@ -17,6 +17,12 @@ itsdangerous = "^2.1.2"
 httpx = "^0.26.0"
 starlette-admin = "^0.13.2"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.2.2"
+pre-commit = "^3.6.2"
+pyright = "^1.1.350"
+pytest = "^8.0.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
