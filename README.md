@@ -7,7 +7,7 @@ Keycloak OAuth client for Python projects with optional integrations for [FastAP
 ### FastAPI
 
 ```sh
-pip install python-keycloak-oauth[fastapi]
+pip install keycloak-oauth[fastapi]
 ```
 
 ```python
@@ -38,7 +38,7 @@ We now expose the API endpoints for Keycloak:
 ### Starlette-Admin
 
 ```sh
-pip install python-keycloak-oauth[starlette]
+pip install keycloak-oauth[starlette-admin]
 ```
 
 ```python
