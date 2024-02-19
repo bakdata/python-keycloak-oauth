@@ -38,7 +38,7 @@ We now expose the API endpoints for Keycloak:
 ### Starlette-Admin
 
 ```sh
-pip install python-keycloak-oauth[starlette]
+pip install python-keycloak-oauth[starlette-admin]
 ```
 
 ```python

@@ -20,7 +20,7 @@ starlette-admin = { version = "^0.13.2", optional = true }
 
 [tool.poetry.extras]
 fastapi = ["fastapi"]
-starlette = ["starlette-admin"]
+starlette-admin = ["starlette-admin"]
 
 [build-system]
 requires = ["poetry-core"]
