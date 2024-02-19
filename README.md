@@ -32,6 +32,7 @@ app.include_router(keycloak.router, prefix="/auth")
 from fastapi import FastAPI
 from backend.settings import settings, BASE_URL  # secrets
 from keycloak.oauth import KeycloakOAuth2
+from keycloak.starlette_admin import KeycloakAuthProvider
 
 keycloak = KeycloakOAuth2(
     client_id=settings.keycloak.client_id,
