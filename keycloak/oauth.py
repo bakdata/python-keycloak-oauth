@@ -80,9 +80,9 @@ class KeycloakOAuth2:
 
     async def parse_claims(self, token: dict[str, Any]) -> JWTClaims:
         metadata = await self.keycloak.load_server_metadata()
-        alg_values = metadata.get("id_token_signing_alg_values_supported")
-        if not alg_values:
-            alg_values = ["RS256"]
+        alg_values: list[str] = metadata.get(
+            "id_token_signing_alg_values_supported"
+        ) or ["RS256"]
         jwt = JsonWebToken(alg_values)
         jwk_set = await self.keycloak.fetch_jwk_set()
         claims = jwt.decode(
