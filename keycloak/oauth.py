@@ -1,6 +1,4 @@
 from typing import Any
-import fastapi
-from fastapi.encoders import jsonable_encoder
 import pydantic
 from authlib.integrations.starlette_client import OAuth, StarletteOAuth2App
 from authlib.jose import JWTClaims, JsonWebToken, JsonWebKey
@@ -45,6 +43,8 @@ class KeycloakOAuth2:
         self.keycloak = oauth.keycloak
 
     def setup_fastapi_routes(self) -> None:
+        import fastapi
+
         self.router = fastapi.APIRouter()
         self.router.add_api_route("/login", self.login_page)
         self.router.add_api_route("/callback", self.auth)
@@ -71,7 +71,7 @@ class KeycloakOAuth2:
             roles=claims["realm_access"]["roles"],
             token=token["access_token"],
         )
-        request.session["user"] = jsonable_encoder(user)
+        request.session["user"] = user.model_dump(mode="json")
         redirect_uri = request.query_params.get("next") or self._base_url
         return RedirectResponse(redirect_uri)
 
