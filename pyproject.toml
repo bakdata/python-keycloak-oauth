@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "keycloak-oauth"
+version = "0.1.0"
+description = "Keycloak OAuth client for Python projects"
+authors = ["bakdata <opensource@bakdata.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/bakdata/python-keycloak-oauth"
+packages = [{ include = "keycloak" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+starlette = "^0.27.0"
+pydantic = { extras = ["email"], version = "^2.4.2" }
+authlib = "^1.3.0"
+itsdangerous = "^2.1.2"
+httpx = "^0.26.0"
+fastapi = { version = "^0.104.1", optional = true }
+starlette-admin = { version = "^0.13.2", optional = true }
+
+[tool.poetry.extras]
+fastapi = ["fastapi"]
+starlette-admin = ["starlette-admin"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
