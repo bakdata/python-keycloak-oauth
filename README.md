@@ -65,7 +65,7 @@ admin = Admin(
 
 ## Development
 
-If you want to contribute to this project, you can simply clone the repository and run `poetry install`.
+If you want to contribute to this project, you can simply clone the repository and run `poetry install --all-extras`.
 
 Please also run `pre-commit install` for linting and enforcing a consistent code style.
 
