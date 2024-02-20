@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python and set up Poetry
+        uses: bakdata/ci-templates/actions/python-setup-poetry@v1.5.3
+        with:
+          poetry-version: "1.7.1"
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check Poetry lock file consistency
+        run: poetry lock --check
+
+      - name: Install dependencies
+        run: poetry install --all-extras --no-interaction
+
+      - name: Linting (ruff)
+        run: poetry run pre-commit run ruff-lint --all-files --show-diff-on-failure
+
+      - name: Formatting (ruff)
+        run: poetry run pre-commit run ruff-format --all-files --show-diff-on-failure
+
+      - name: Typing (pyright)
+        run: poetry run pre-commit run pyright --all-files
+
+      # - name: Test
+      #   run: poetry run pytest tests
+
+  publish-snapshot-version:
+    name: Publish snapshot to TestPyPI
+    needs: [test]
+    uses: bakdata/ci-templates/.github/workflows/python-poetry-publish-snapshot.yaml@1.40.4
+    with:
+      poetry-version: "1.7.1"
+    secrets:
+      pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}

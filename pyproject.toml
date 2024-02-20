@@ -22,6 +22,12 @@ starlette-admin = { version = "^0.13.2", optional = true }
 fastapi = ["fastapi"]
 starlette-admin = ["starlette-admin"]
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.1"
+pre-commit = "^3.6.2"
+ruff = "^0.2.2"
+pyright = "^1.1.351"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
