@@ -28,6 +28,10 @@ pre-commit = "^3.6.2"
 ruff = "^0.2.2"
 pyright = "^1.1.351"
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.0.1"
+testcontainers = "^3.7.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
