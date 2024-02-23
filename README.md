@@ -13,7 +13,7 @@ pip install keycloak-oauth[fastapi]
 ```python
 from fastapi import FastAPI
 from backend.settings import settings, BASE_URL  # secrets
-from keycloak.oauth import KeycloakOAuth2
+from keycloak_oauth import KeycloakOAuth2
 
 keycloak = KeycloakOAuth2(
     client_id=settings.keycloak.client_id,
@@ -44,7 +44,7 @@ pip install keycloak-oauth[starlette-admin]
 ```python
 from starlette_admin.contrib.sqla import Admin
 from backend.settings import settings, BASE_URL  # secrets
-from keycloak.oauth import KeycloakOAuth2
+from keycloak_oauth import KeycloakOAuth2
 from keycloak.starlette_admin import KeycloakAuthProvider
 
 keycloak = KeycloakOAuth2(
