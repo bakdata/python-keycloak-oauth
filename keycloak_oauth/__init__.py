@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 import pydantic
 from authlib.common.security import generate_token
@@ -38,14 +39,12 @@ class KeycloakOAuth2:
 
         # TODO pass properly
         # Generated via `openssl genrsa - out keypair.pem 2048`
-        with open("keypair.pem", "rb") as f:
-            client_secret = f.read()
+        client_secret = Path("keypair.pem").read_bytes()
 
         # Generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
-        with open("publickey.crt", "r") as f:
-            self.pub = JsonWebKey.import_key(
-                f.read(), {"kty": "RSA", "use": "sig"}
-            ).as_dict()
+        self.pub = JsonWebKey.import_key(
+            Path("publickey.crt").read_text(), {"kty": "RSA", "use": "sig"}
+        ).as_dict()
 
         # TODO call self.keycloak.load_server_metadata() and get token_endpoint
         token_endpoint = (
