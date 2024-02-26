@@ -18,7 +18,6 @@ class TestKeycloakOAuth2:
         container = (
             KeycloakContainer()
             .with_name("keycloak")
-            .with_command("start-dev --import-realm")
             .with_volume_mapping(
                 str(self.RESOURCES_PATH),
                 "/opt/keycloak/data/import",
