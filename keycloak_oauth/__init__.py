@@ -25,7 +25,7 @@ class KeycloakOAuth2:
     def __init__(
         self,
         client_id: str,
-        client_secret: str | bytes,
+        client_secret: str | bytes | None,
         server_metadata_url: str,
         client_kwargs: dict[str, Any],
         base_url: str = "/",
@@ -39,25 +39,25 @@ class KeycloakOAuth2:
 
         # TODO pass properly
         # Generated via `openssl genrsa - out keypair.pem 2048`
-        client_secret = Path("keypair.pem").read_bytes()
+        if not client_secret:
+            client_secret = Path("keypair.pem").read_bytes()
 
-        # Generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
-        self.pub = JsonWebKey.import_key(
-            Path("publickey.crt").read_text(), {"kty": "RSA", "use": "sig"}
-        ).as_dict()
+            # Generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
+            self.pub = JsonWebKey.import_key(
+                Path("publickey.crt").read_text(), {"kty": "RSA", "use": "sig"}
+            ).as_dict()
 
-        # TODO call self.keycloak.load_server_metadata() and get token_endpoint
-        token_endpoint = (
-            "http://localhost:8180/realms/bakdata/protocol/openid-connect/token"
-        )
-        auth_method = PrivateKeyJWT(token_endpoint)
-        client_kwargs.update(
-            {
-                "code_challenge_method": "S256",
-                "client_auth_methods": [auth_method],
-                "token_endpoint_auth_method": auth_method.name,
-            }
-        )
+            # TODO call self.keycloak.load_server_metadata() and get token_endpoint
+            token_endpoint = (
+                "http://localhost:8180/realms/bakdata/protocol/openid-connect/token"
+            )
+            auth_method = PrivateKeyJWT(token_endpoint)
+            client_kwargs.update(
+                {
+                    "client_auth_methods": [auth_method],
+                    "token_endpoint_auth_method": auth_method.name,
+                }
+            )
 
         oauth.register(
             name="keycloak",
@@ -66,6 +66,7 @@ class KeycloakOAuth2:
             client_secret=client_secret,
             server_metadata_url=server_metadata_url,
             client_kwargs=client_kwargs,
+            code_challenge_method="S256",
         )
 
         assert isinstance(oauth.keycloak, StarletteOAuth2App)
