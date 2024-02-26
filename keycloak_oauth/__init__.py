@@ -52,6 +52,13 @@ class KeycloakOAuth2:
             "http://localhost:8180/realms/bakdata/protocol/openid-connect/token"
         )
         auth_method = PrivateKeyJWT(token_endpoint)
+        client_kwargs.update(
+            {
+                "code_challenge_method": "S256",
+                "client_auth_methods": [auth_method],
+                "token_endpoint_auth_method": auth_method.name,
+            }
+        )
 
         oauth.register(
             name="keycloak",
@@ -60,9 +67,6 @@ class KeycloakOAuth2:
             client_secret=client_secret,
             server_metadata_url=server_metadata_url,
             client_kwargs=client_kwargs,
-            code_challenge_method="S256",
-            client_auth_methods=[auth_method],
-            token_endpoint_auth_method=auth_method.name,
         )
 
         assert isinstance(oauth.keycloak, StarletteOAuth2App)
