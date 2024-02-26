@@ -72,7 +72,7 @@ class TestKeycloakOAuth2:
         return TestClient(app)
 
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
-        assert keycloak.realm_name == "bakdata"
+        assert keycloak.connection.realm_name == "bakdata"
 
     @pytest.mark.usefixtures("keycloak")
     def test_login_redirect(self, client: TestClient):
