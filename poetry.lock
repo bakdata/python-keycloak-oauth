@@ -1178,39 +1178,6 @@ i18n = ["babel (>=2.13.0)"]
 test = ["aiomysql (>=0.1.1,<0.3.0)", "aiosqlite (>=0.17.0,<0.20.0)", "arrow (>=1.2.3,<1.4.0)", "asyncpg (>=0.27.0,<0.30.0)", "backports-zoneinfo", "black (==24.1.1)", "colour (>=0.1.5,<0.2.0)", "fasteners (==0.19)", "httpx (>=0.23.3,<0.27.0)", "itsdangerous (>=2.1.2,<2.2.0)", "mongoengine (>=0.25.0,<0.28.0)", "mypy (==1.8.0)", "odmantic (>=0.9.0,<0.10.0)", "passlib (>=1.7.4,<1.8.0)", "phonenumbers (>=8.13.3,<8.14.0)", "pillow (>=9.4.0,<9.6.0)", "psycopg2-binary (>=2.9.5,<3.0.0)", "pydantic[email] (>=1.10.2,<2.6.0)", "pymysql[rsa] (>=1.0.2,<1.2.0)", "pytest (>=7.2.0,<7.5.0)", "pytest-asyncio (>=0.20.2,<0.24.0)", "ruff (==0.1.15)", "sqlalchemy-file (>=0.5.0,<0.7.0)", "sqlalchemy-utils (>=0.40.0,<0.42.0)", "sqlmodel (>=0.0.11,<0.15.0)", "tinydb (>=4.7.0,<4.9.0)"]
 
 [[package]]
-name = "testcontainers"
-version = "3.7.1"
-description = "Library provides lightweight, throwaway instances of common databases, Selenium web browsers, or anything else that can run in a Docker container"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "testcontainers-3.7.1-py2.py3-none-any.whl", hash = "sha256:7f48cef4bf0ccd78f1a4534d4b701a003a3bace851f24eae58a32f9e3f0aeba0"},
-]
-
-[package.dependencies]
-deprecation = "*"
-docker = ">=4.0.0"
-wrapt = "*"
-
-[package.extras]
-arangodb = ["python-arango"]
-azurite = ["azure-storage-blob"]
-clickhouse = ["clickhouse-driver"]
-docker-compose = ["docker-compose"]
-google-cloud-pubsub = ["google-cloud-pubsub (<2)"]
-kafka = ["kafka-python"]
-keycloak = ["python-keycloak"]
-mongo = ["pymongo"]
-mssqlserver = ["pymssql"]
-mysql = ["pymysql", "sqlalchemy"]
-neo4j = ["neo4j"]
-oracle = ["cx-Oracle", "sqlalchemy"]
-postgresql = ["psycopg2-binary", "sqlalchemy"]
-rabbitmq = ["pika"]
-redis = ["redis"]
-selenium = ["selenium"]
-
-[[package]]
 name = "testcontainers-core"
 version = "0.0.1rc1"
 description = "Core component of testcontainers-python."
@@ -1389,4 +1356,4 @@ starlette-admin = ["starlette-admin"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6519bfd554b662ee38528f03786bfc1424a65b5abe9ca9774ab6377f5223b96e"
+content-hash = "ab331d91a9d975001736e22b90d0e0931e71837eabd4d97cd3ca1c74c39a6079"
