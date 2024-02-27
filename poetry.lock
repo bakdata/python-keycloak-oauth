@@ -1239,7 +1239,7 @@ testcontainers-core = "*"
 
 [package.source]
 type = "git"
-url = "ssh://git@github.com/TheForgottened/testcontainers-python.git"
+url = "https://github.com/TheForgottened/testcontainers-python"
 reference = "HEAD"
 resolved_reference = "cb74c2c8789bd9329c48bc105f0b63e40ae4e675"
 subdirectory = "keycloak"
@@ -1389,4 +1389,4 @@ starlette-admin = ["starlette-admin"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "eba554c131282ffe0c18fd00745190a6b744f16cd46736efe8dbe6491671b053"
+content-hash = "6519bfd554b662ee38528f03786bfc1424a65b5abe9ca9774ab6377f5223b96e"
