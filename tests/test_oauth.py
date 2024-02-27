@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Generator
 from fastapi import FastAPI, status
+import httpx
 from starlette.datastructures import URL
 from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
@@ -23,6 +24,7 @@ class TestKeycloakOAuth2:
                 str(self.RESOURCES_PATH),
                 "/opt/keycloak/data/import",
             )
+            .with_bind_ports(8080, 8080)
         )
         assert isinstance(
             container, KeycloakContainer
@@ -66,7 +68,10 @@ class TestKeycloakOAuth2:
             client_id="test-client",
             client_secret="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf",
             server_metadata_url=f"{keycloak.connection.base_url}/realms/bakdata/.well-known/openid-configuration",
-            client_kwargs={},
+            client_kwargs={
+                "scope": "openid profile email",
+                "code_challenge_method": "S256",
+            },
         )
         keycloak_oauth.setup_fastapi_routes()
         app.include_router(keycloak_oauth.router, prefix="/auth")
@@ -85,7 +90,12 @@ class TestKeycloakOAuth2:
         assert response.url.params["client_id"] == "test-client"
         assert response.url.params["redirect_uri"]
         assert URL(response.url.params["redirect_uri"]).path == "/auth/callback"
-        # assert response.status_code == status.HTTP_200_OK
+        assert URL(response.url.params["redirect_uri"]) == client.base_url.copy_with(
+            path="/auth/callback"
+        )
+
+        response = httpx.get(response.url)
+        assert response.status_code == status.HTTP_200_OK
 
     def test_logout_redirect(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
