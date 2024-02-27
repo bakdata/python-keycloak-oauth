@@ -60,8 +60,21 @@ class TestKeycloakOAuth2:
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
         assert keycloak.connection.realm_name == "bakdata"
 
-    def test_login_redirect(self, client: TestClient, keycloak: KeycloakAdmin):
-        response = client.get("/auth/login", params={"next": "foobar"})
+    @pytest.mark.parametrize(
+        "query_params",
+        [
+            None,
+            httpx.QueryParams({"next": "foo"}),
+            httpx.QueryParams({"next": "bar", "unrelated": "should be hidden"}),
+        ],
+    )
+    def test_login_redirect(
+        self,
+        client: TestClient,
+        keycloak: KeycloakAdmin,
+        query_params: httpx.QueryParams | None,
+    ):
+        response = client.get("/auth/login", params=query_params)
         keycloak_base_url = httpx.URL(keycloak.connection.base_url)
         assert response.url.host == keycloak_base_url.host
         assert response.url.port == keycloak_base_url.port
@@ -70,7 +83,10 @@ class TestKeycloakOAuth2:
         redirect_uri = httpx.URL(response.url.params["redirect_uri"])
         assert redirect_uri.host == client.base_url.host
         assert redirect_uri.path == "/auth/callback"
-        assert redirect_uri.params.get("next") == "foobar"
+        if query_params:
+            assert redirect_uri.params["next"] == query_params["next"]
+        else:
+            assert not redirect_uri.params
 
         # open Keycloak login page
         response = httpx.get(response.url)
