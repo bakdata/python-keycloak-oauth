@@ -46,7 +46,7 @@ pip install keycloak-oauth[starlette-admin]
 ```python
 from starlette.middleware.sessions import SessionMiddleware
 from starlette_admin.contrib.sqla import Admin
-from backend.settings import settings, BASE_URL  # secrets
+from backend.settings import settings, BASE_URL, SECRET_KEY  # secrets
 from keycloak.oauth import KeycloakOAuth2
 from keycloak.starlette_admin import KeycloakAuthProvider
 
