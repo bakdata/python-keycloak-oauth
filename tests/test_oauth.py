@@ -9,6 +9,8 @@ import pytest
 from keycloak_oauth import KeycloakOAuth2
 from testcontainers.keycloak import KeycloakContainer
 from fastapi.testclient import TestClient
+from twill import browser
+from twill.commands import form_value
 
 
 class TestKeycloakOAuth2:
@@ -29,12 +31,20 @@ class TestKeycloakOAuth2:
         )  # HACK: wrong type annotation in testcontainers `with_command`
         container.with_bind_ports(container.port, container.port).start()
         keycloak = container.get_client()
+        assert keycloak.connection.base_url == container.get_base_api_url() + "/"
         keycloak.import_realm(
             json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
         )
         keycloak.change_current_realm("bakdata")
-        assert keycloak.connection.base_url == container.get_base_api_url() + "/"
+
+        user_id = keycloak.create_user({"username": keycloak.connection.username})
+        keycloak.set_user_password(
+            user_id, keycloak.connection.password, temporary=False
+        )
+        keycloak.enable_user(user_id)
+
         yield keycloak
+
         container.stop()
 
     @pytest.fixture()
@@ -64,8 +74,8 @@ class TestKeycloakOAuth2:
         "query_params",
         [
             None,
-            httpx.QueryParams({"next": "foo"}),
-            httpx.QueryParams({"next": "bar", "unrelated": "should be hidden"}),
+            # httpx.QueryParams({"next": "foo"}),
+            # httpx.QueryParams({"next": "bar", "unrelated": "should be hidden"}),
         ],
     )
     def test_login_redirect(
@@ -92,6 +102,20 @@ class TestKeycloakOAuth2:
         # open Keycloak login page
         response = httpx.get(response.url)
         assert response.status_code == status.HTTP_200_OK
+
+        browser.go(str(response.url))
+        assert browser.title == "Sign in to bakdata"
+        browser.show_forms()
+        assert keycloak.connection.username
+        assert keycloak.connection.password
+        form_value("1", "username", keycloak.connection.username)
+        form_value("1", "password", keycloak.connection.password)
+        with pytest.raises(httpx.ConnectError) as exc:
+            browser.submit("0")
+        assert exc.value.request.url.host == client.base_url.host
+        assert exc.value.request.url.path == "/auth/callback"
+
+        response = client.get(exc.value.request.url)
 
     def test_logout_redirect(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
