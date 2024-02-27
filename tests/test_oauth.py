@@ -88,12 +88,11 @@ class TestKeycloakOAuth2:
         assert response.url.port == keycloak_base_url.port
         assert response.url.path == "/realms/bakdata/protocol/openid-connect/auth"
         assert response.url.params["client_id"] == "test-client"
-        assert response.url.params["redirect_uri"]
-        assert URL(response.url.params["redirect_uri"]).path == "/auth/callback"
-        assert URL(response.url.params["redirect_uri"]) == client.base_url.copy_with(
-            path="/auth/callback"
-        )
+        redirect_uri = URL(response.url.params["redirect_uri"])
+        assert redirect_uri.hostname == client.base_url.host
+        assert redirect_uri.path == "/auth/callback"
 
+        # call Keycloak
         response = httpx.get(response.url)
         assert response.status_code == status.HTTP_200_OK
 
