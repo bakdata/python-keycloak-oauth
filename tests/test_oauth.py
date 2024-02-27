@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Generator
 from fastapi import FastAPI, status
 import httpx
-from starlette.datastructures import URL
 from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
 import pytest
@@ -62,15 +61,16 @@ class TestKeycloakOAuth2:
         assert keycloak.connection.realm_name == "bakdata"
 
     def test_login_redirect(self, client: TestClient, keycloak: KeycloakAdmin):
-        response = client.get("/auth/login")
-        keycloak_base_url = URL(keycloak.connection.base_url)
-        assert response.url.host == keycloak_base_url.hostname
+        response = client.get("/auth/login", params={"next": "foobar"})
+        keycloak_base_url = httpx.URL(keycloak.connection.base_url)
+        assert response.url.host == keycloak_base_url.host
         assert response.url.port == keycloak_base_url.port
         assert response.url.path == "/realms/bakdata/protocol/openid-connect/auth"
         assert response.url.params["client_id"] == "test-client"
-        redirect_uri = URL(response.url.params["redirect_uri"])
-        assert redirect_uri.hostname == client.base_url.host
+        redirect_uri = httpx.URL(response.url.params["redirect_uri"])
+        assert redirect_uri.host == client.base_url.host
         assert redirect_uri.path == "/auth/callback"
+        assert redirect_uri.params.get("next") == "foobar"
 
         # open Keycloak login page
         response = httpx.get(response.url)
