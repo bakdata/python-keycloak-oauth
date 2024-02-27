@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Generator
 from fastapi import FastAPI, status
+from starlette.datastructures import URL
 from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
 import pytest
@@ -32,7 +33,7 @@ class TestKeycloakOAuth2:
             json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
         )
         keycloak.change_current_realm("bakdata")
-        assert keycloak.connection.server_url == container.get_base_api_url() + "/"
+        assert keycloak.connection.base_url == container.get_base_api_url() + "/"
         yield keycloak
         container.stop()
 
@@ -64,7 +65,7 @@ class TestKeycloakOAuth2:
         keycloak_oauth = KeycloakOAuth2(
             client_id="test-client",
             client_secret="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf",
-            server_metadata_url=f"{keycloak.connection.server_url}/realms/bakdata/.well-known/openid-configuration",
+            server_metadata_url=f"{keycloak.connection.base_url}/realms/bakdata/.well-known/openid-configuration",
             client_kwargs={},
         )
         keycloak_oauth.setup_fastapi_routes()
@@ -78,10 +79,15 @@ class TestKeycloakOAuth2:
         assert keycloak.connection.realm_name == "bakdata"
 
     def test_login_redirect(self, client: TestClient, keycloak: KeycloakAdmin):
-        response = client.get("/auth/login", follow_redirects=False)
-        assert response.status_code == status.HTTP_302_FOUND  # redirect
-        assert response.headers["location"].startswith(keycloak.connection.server_url)
-        # http://localhost:32798/realms/bakdata/protocol/openid-connect/auth?response_type=code&client_id=test-client&redirect_uri=http%3A%2F%2Ftestserver%2Fauth%2Fcallback&state=MppMcnKsZd5DTP88QtWeOTxOU6NlBC
+        response = client.get("/auth/login")
+        keycloak_base_url = URL(keycloak.connection.base_url)
+        assert response.url.host == keycloak_base_url.hostname
+        assert response.url.port == keycloak_base_url.port
+        assert response.url.path == "/realms/bakdata/protocol/openid-connect/auth"
+        assert response.url.params["client_id"] == "test-client"
+        assert response.url.params["redirect_uri"]
+        assert URL(response.url.params["redirect_uri"]).path == "/auth/callback"
+        # assert response.status_code == status.HTTP_200_OK
 
     def test_logout_redirect(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
