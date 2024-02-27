@@ -77,10 +77,15 @@ class TestKeycloakOAuth2:
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
         assert keycloak.connection.realm_name == "bakdata"
 
+    def test_protected_endpoint(self, client: TestClient):
+        response = client.get("/")
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
     @pytest.mark.parametrize(
         "query_params",
         [
             None,
+            # FIXME
             # httpx.QueryParams({"next": "foo"}),
             # httpx.QueryParams({"next": "bar", "unrelated": "should be hidden"}),
         ],
