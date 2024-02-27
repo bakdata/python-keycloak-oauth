@@ -6,7 +6,7 @@ authors = ["bakdata <opensource@bakdata.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/bakdata/python-keycloak-oauth"
-packages = [{ include = "keycloak" }]
+packages = [{ include = "keycloak_oauth" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
