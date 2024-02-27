@@ -72,7 +72,7 @@ class TestKeycloakOAuth2:
         assert redirect_uri.hostname == client.base_url.host
         assert redirect_uri.path == "/auth/callback"
 
-        # call Keycloak
+        # open Keycloak login page
         response = httpx.get(response.url)
         assert response.status_code == status.HTTP_200_OK
 
