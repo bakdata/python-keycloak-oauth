@@ -38,25 +38,6 @@ class TestKeycloakOAuth2:
         yield keycloak
         container.stop()
 
-        # NOTE: altenative:
-        # container = KeycloakContainer("quay.io/keycloak/keycloak:19.0").with_command(
-        #     "start-dev --import-realm"
-        # )
-        # os.environ["KEYCLOAK_USER"] = "admin"
-        # os.environ["KEYCLOAK_PASSWORD"] = "admin"
-        # container.env = {
-        #     "KC_HTTP_RELATIVE_PATH": "/auth",
-        #     "KEYCLOAK_USER": "admin",
-        #     "KEYCLOAK_PASSWORD": "admin",
-        #     "KEYCLOAK_ADMIN": "admin",
-        #     "KEYCLOAK_ADMIN_PASSWORD": "admin",
-        # }
-        # assert isinstance(container, KeycloakContainer)
-        # container.start()
-        # keycloak = container.get_client()
-        # yield keycloak
-        # container.stop()
-
     @pytest.fixture()
     def app(self) -> FastAPI:
         return FastAPI()
