@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
-from typing import Generator
-from fastapi import FastAPI, status
+from typing import Annotated, Generator
+from fastapi import Depends, FastAPI, Request, status
 import httpx
 from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
 import pytest
-from keycloak_oauth import KeycloakOAuth2
+from keycloak_oauth import KeycloakOAuth2, User
 from testcontainers.keycloak import KeycloakContainer
 from fastapi.testclient import TestClient
 from twill import browser
@@ -65,6 +65,13 @@ class TestKeycloakOAuth2:
         keycloak_oauth.setup_fastapi_routes()
         app.include_router(keycloak_oauth.router, prefix="/auth")
         app.add_middleware(SessionMiddleware, secret_key="!secret")
+
+        @app.get("/")
+        def root(
+            request: Request, user: Annotated[User, Depends(KeycloakOAuth2.get_user)]
+        ) -> str:
+            return f"Hello {user.name}"
+
         return TestClient(app)
 
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
@@ -115,6 +122,7 @@ class TestKeycloakOAuth2:
         assert exc.value.request.url.host == client.base_url.host
         assert exc.value.request.url.path == "/auth/callback"
 
+        # first check the redirect
         response = client.get(exc.value.request.url, follow_redirects=False)
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
         if query_params:
@@ -122,7 +130,13 @@ class TestKeycloakOAuth2:
         else:
             assert response.headers["location"] == "/"
 
+        # now follow the redirect
+        response = client.get(response.headers["location"])
+        assert response.is_success
+        assert response.read() == b'"Hello test"'
+
     def test_logout(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
         assert response.headers["location"] == "/"
+        assert not client.app_state.items()  # TODO
