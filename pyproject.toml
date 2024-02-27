@@ -31,8 +31,9 @@ pyright = "^1.1.351"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.1"
 pytest-mock = "^3.12.0"
-testcontainers = "^3.7.1"
 python-keycloak = "^3.9.0"
+testcontainers = "^3.7.1"
+testcontainers-keycloak = { git = "ssh://git@github.com/TheForgottened/testcontainers-python.git", subdirectory = "keycloak" }  # updated Keycloak container: https://github.com/TheForgottened/testcontainers-python/tree/cb74c2c8789bd9329c48bc105f0b63e40ae4e675/keycloak
 
 [build-system]
 requires = ["poetry-core"]

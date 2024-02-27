@@ -7,7 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
 import pytest
 from keycloak_oauth import KeycloakOAuth2
-from tests.keycloak_testcontainer import KeycloakContainer
+from testcontainers.keycloak import KeycloakContainer
 from fastapi.testclient import TestClient
 
 
