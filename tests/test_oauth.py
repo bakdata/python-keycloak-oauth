@@ -78,7 +78,7 @@ class TestKeycloakOAuth2:
             # httpx.QueryParams({"next": "bar", "unrelated": "should be hidden"}),
         ],
     )
-    def test_login_redirect(
+    def test_login(
         self,
         client: TestClient,
         keycloak: KeycloakAdmin,
@@ -115,9 +115,14 @@ class TestKeycloakOAuth2:
         assert exc.value.request.url.host == client.base_url.host
         assert exc.value.request.url.path == "/auth/callback"
 
-        response = client.get(exc.value.request.url)
+        response = client.get(exc.value.request.url, follow_redirects=False)
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        if query_params:
+            assert response.headers["location"] == query_params["next"]
+        else:
+            assert response.headers["location"] == "/"
 
-    def test_logout_redirect(self, client: TestClient):
+    def test_logout(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
         assert response.headers["location"] == "/"
