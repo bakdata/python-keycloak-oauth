@@ -11,7 +11,6 @@ from fastapi.testclient import TestClient
 
 
 class TestKeycloakOAuth2:
-    KEYCLOAK_BASE_URL = "http://localhost:8080"
     RESOURCES_PATH = Path(__file__).parent.absolute() / "resources/keycloak"
 
     @pytest.fixture(scope="session")
@@ -33,6 +32,7 @@ class TestKeycloakOAuth2:
             json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
         )
         keycloak.change_current_realm("bakdata")
+        assert keycloak.connection.server_url == container.get_base_api_url() + "/"
         yield keycloak
         container.stop()
 
@@ -60,15 +60,15 @@ class TestKeycloakOAuth2:
         return FastAPI()
 
     @pytest.fixture()
-    def client(self, app: FastAPI) -> TestClient:
-        keycloak = KeycloakOAuth2(
+    def client(self, app: FastAPI, keycloak: KeycloakAdmin) -> TestClient:
+        keycloak_oauth = KeycloakOAuth2(
             client_id="test-client",
             client_secret="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf",
-            server_metadata_url=f"{self.KEYCLOAK_BASE_URL}/realms/bakdata/.well-known/openid-configuration",
+            server_metadata_url=f"{keycloak.connection.server_url}/realms/bakdata/.well-known/openid-configuration",
             client_kwargs={},
         )
-        keycloak.setup_fastapi_routes()
-        app.include_router(keycloak.router, prefix="/auth")
+        keycloak_oauth.setup_fastapi_routes()
+        app.include_router(keycloak_oauth.router, prefix="/auth")
         app.add_middleware(
             SessionMiddleware, secret_key="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf"
         )
@@ -77,11 +77,11 @@ class TestKeycloakOAuth2:
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
         assert keycloak.connection.realm_name == "bakdata"
 
-    @pytest.mark.usefixtures("keycloak")
-    def test_login_redirect(self, client: TestClient):
+    def test_login_redirect(self, client: TestClient, keycloak: KeycloakAdmin):
         response = client.get("/auth/login", follow_redirects=False)
-        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-        assert response.headers["location"] == "/auth/callback"
+        assert response.status_code == status.HTTP_302_FOUND  # redirect
+        assert response.headers["location"].startswith(keycloak.connection.server_url)
+        # http://localhost:32798/realms/bakdata/protocol/openid-connect/auth?response_type=code&client_id=test-client&redirect_uri=http%3A%2F%2Ftestserver%2Fauth%2Fcallback&state=MppMcnKsZd5DTP88QtWeOTxOU6NlBC
 
     def test_logout_redirect(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
