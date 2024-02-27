@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 from typing import Generator
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
 import pytest
 from keycloak_oauth import KeycloakOAuth2
@@ -65,10 +66,12 @@ class TestKeycloakOAuth2:
             client_secret="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf",
             server_metadata_url=f"{self.KEYCLOAK_BASE_URL}/realms/bakdata/.well-known/openid-configuration",
             client_kwargs={},
-            # base_url=BASE_URL,
         )
         keycloak.setup_fastapi_routes()
         app.include_router(keycloak.router, prefix="/auth")
+        app.add_middleware(
+            SessionMiddleware, secret_key="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf"
+        )
         return TestClient(app)
 
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
@@ -76,5 +79,11 @@ class TestKeycloakOAuth2:
 
     @pytest.mark.usefixtures("keycloak")
     def test_login_redirect(self, client: TestClient):
-        response = client.get("/auth/login")
-        assert response.url == "/auth/callback"
+        response = client.get("/auth/login", follow_redirects=False)
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        assert response.headers["location"] == "/auth/callback"
+
+    def test_logout_redirect(self, client: TestClient):
+        response = client.get("/auth/logout", follow_redirects=False)
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        assert response.headers["location"] == "/"
