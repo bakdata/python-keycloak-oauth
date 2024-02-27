@@ -70,9 +70,7 @@ class TestKeycloakOAuth2:
         )
         keycloak_oauth.setup_fastapi_routes()
         app.include_router(keycloak_oauth.router, prefix="/auth")
-        app.add_middleware(
-            SessionMiddleware, secret_key="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf"
-        )
+        app.add_middleware(SessionMiddleware, secret_key="!secret")
         return TestClient(app)
 
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
