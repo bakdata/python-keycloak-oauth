@@ -12,6 +12,7 @@ pip install keycloak-oauth[fastapi]
 
 ```python
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 from backend.settings import settings, BASE_URL  # secrets
 from keycloak_oauth import KeycloakOAuth2
 
@@ -26,6 +27,7 @@ keycloak = KeycloakOAuth2(
 keycloak.setup_fastapi_routes()
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key="secret0123456789")
 app.include_router(keycloak.router, prefix="/auth")
 ```
 
