@@ -24,12 +24,11 @@ class TestKeycloakOAuth2:
                 str(self.RESOURCES_PATH),
                 "/opt/keycloak/data/import",
             )
-            .with_bind_ports(8080, 8080)
         )
         assert isinstance(
             container, KeycloakContainer
         )  # HACK: wrong type annotation in testcontainers `with_command`
-        container.start()
+        container.with_bind_ports(container.port, container.port).start()
         keycloak = container.get_client()
         keycloak.import_realm(
             json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
