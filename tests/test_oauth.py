@@ -84,6 +84,7 @@ class TestKeycloakOAuth2:
         assert redirect_uri.host == client.base_url.host
         assert redirect_uri.path == "/auth/callback"
         if query_params:
+            assert set(redirect_uri.params.keys()) == {"next"}
             assert redirect_uri.params["next"] == query_params["next"]
         else:
             assert not redirect_uri.params
