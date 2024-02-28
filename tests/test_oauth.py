@@ -72,6 +72,18 @@ class TestKeycloakOAuth2:
         ) -> str:
             return f"Hello {user.name}"
 
+        @app.get("/foo")
+        def foo(
+            request: Request, user: Annotated[User, Depends(KeycloakOAuth2.get_user)]
+        ) -> str:
+            return "foo"
+
+        @app.get("/bar")
+        def bar(
+            request: Request, user: Annotated[User, Depends(KeycloakOAuth2.get_user)]
+        ) -> str:
+            return "bar"
+
         return TestClient(app)
 
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
@@ -81,13 +93,14 @@ class TestKeycloakOAuth2:
         response = client.get("/")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
+    # TODO: test flow: access protected endpoint -> redirect to login -> auth callback -> access resource -> logout -> redirect to index
     @pytest.mark.parametrize(
         "query_params",
         [
             None,
             # FIXME
-            # httpx.QueryParams({"next": "foo"}),
-            # httpx.QueryParams({"next": "bar", "unrelated": "should be hidden"}),
+            # httpx.QueryParams({"next": "/foo"}),
+            # httpx.QueryParams({"next": "/bar", "unrelated": "should be hidden"}),
         ],
     )
     def test_login(
@@ -118,7 +131,7 @@ class TestKeycloakOAuth2:
         browser.go(str(response.url))
         assert browser.title == "Sign in to bakdata"
         browser.show_forms()
-        assert keycloak.connection.username
+        assert keycloak.connection.username  # HACK: fix wrong type annotation
         assert keycloak.connection.password
         form_value("1", "username", keycloak.connection.username)
         form_value("1", "password", keycloak.connection.password)
@@ -138,7 +151,10 @@ class TestKeycloakOAuth2:
         # now follow the redirect
         response = client.get(response.headers["location"])
         assert response.is_success
-        assert response.read() == b'"Hello test"'
+        if query_params:
+            assert response.read() == f'"{query_params[next]}"'
+        else:
+            assert response.read() == b'"Hello test"'
 
     def test_logout(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
