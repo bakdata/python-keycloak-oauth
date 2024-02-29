@@ -123,6 +123,11 @@ class TestKeycloakOAuth2:
         else:
             assert not redirect_uri.params
 
+    def test_logout_redirect(self, client: TestClient):
+        response = client.get("/auth/logout", follow_redirects=False)
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        assert response.headers["location"] == "/"
+
     def test_auth_flow(self, client: TestClient, keycloak: KeycloakAdmin):
         # try accessing protected endpoint
         response = client.get("/", follow_redirects=False)
@@ -149,7 +154,7 @@ class TestKeycloakOAuth2:
 
         # first check the redirect
         response = client.get(exc.value.request.url, follow_redirects=False)
-        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        assert response.is_redirect
         assert response.headers["location"] == "/"
 
         # now follow the redirect
@@ -158,15 +163,9 @@ class TestKeycloakOAuth2:
         assert response.read() == b'"Hello test"'
 
         # logout user
-        response = client.get("/auth/logout", follow_redirects=False)
-        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-        assert response.headers["location"] == "/"
+        response = client.get("/auth/logout")
+        assert response.is_redirect
 
         # check that endpoint is inaccessible again
         response = client.get("/", follow_redirects=False)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-    def test_logout_redirect(self, client: TestClient):
-        response = client.get("/auth/logout", follow_redirects=False)
-        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-        assert response.headers["location"] == "/"
