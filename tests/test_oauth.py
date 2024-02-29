@@ -163,9 +163,9 @@ class TestKeycloakOAuth2:
         assert response.read() == b'"Hello test"'
 
         # logout user
-        response = client.get("/auth/logout")
+        response = client.get("/auth/logout", follow_redirects=False)
         assert response.is_redirect
 
         # check that endpoint is inaccessible again
-        response = client.get("/", follow_redirects=False)
+        response = client.get("/")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
