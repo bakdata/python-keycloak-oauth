@@ -37,28 +37,6 @@ class KeycloakOAuth2:
 
         oauth = OAuth()
 
-        # TODO pass properly
-        # Generated via `openssl genrsa - out keypair.pem 2048`
-        if not client_secret:
-            client_secret = Path("keypair.pem").read_bytes()
-
-            # Generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
-            self.pub = JsonWebKey.import_key(
-                Path("publickey.crt").read_text(), {"kty": "RSA", "use": "sig"}
-            ).as_dict()
-
-            # TODO call self.keycloak.load_server_metadata() and get token_endpoint
-            token_endpoint = (
-                "http://localhost:8180/realms/bakdata/protocol/openid-connect/token"
-            )
-            auth_method = PrivateKeyJWT(token_endpoint)
-            client_kwargs.update(
-                {
-                    "client_auth_methods": [auth_method],
-                    "token_endpoint_auth_method": auth_method.name,
-                }
-            )
-
         oauth.register(
             name="keycloak",
             # client_id and client_secret are created in keycloak
@@ -71,6 +49,24 @@ class KeycloakOAuth2:
 
         assert isinstance(oauth.keycloak, StarletteOAuth2App)
         self.keycloak = oauth.keycloak
+
+    async def setup_signed_jwt(self) -> None:
+        # Generated via `openssl genrsa - out keypair.pem 2048`
+        self.keycloak.client_secret = Path("keypair.pem").read_bytes()
+
+        # Generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
+        self.pub = JsonWebKey.import_key(
+            Path("publickey.crt").read_text(), {"kty": "RSA", "use": "sig"}
+        ).as_dict()
+
+        metadata = await self.keycloak.load_server_metadata()
+        auth_method = PrivateKeyJWT(metadata["token_endpoint"])
+        self.keycloak.client_kwargs.update(
+            {
+                "client_auth_methods": [auth_method],
+                "token_endpoint_auth_method": auth_method.name,
+            }
+        )
 
     def setup_fastapi_routes(self) -> None:
         """Create FastAPI router and register API endpoints."""
