@@ -6,7 +6,7 @@ authors = ["bakdata <opensource@bakdata.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/bakdata/python-keycloak-oauth"
-packages = [{ include = "keycloak" }]
+packages = [{ include = "keycloak_oauth" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -27,6 +27,13 @@ pytest = "^8.0.1"
 pre-commit = "^3.6.2"
 ruff = "^0.2.2"
 pyright = "^1.1.351"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.0.1"
+pytest-mock = "^3.12.0"
+python-keycloak = "^3.9.0"
+testcontainers-keycloak = { git = "https://github.com/TheForgottened/testcontainers-python", subdirectory = "keycloak" } # updated Keycloak container: https://github.com/testcontainers/testcontainers-python/pull/369
+twill = "^3.2.2"
 
 [build-system]
 requires = ["poetry-core"]

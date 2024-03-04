@@ -5,7 +5,7 @@ from starlette.responses import RedirectResponse
 from starlette.routing import Route
 from starlette_admin.auth import AdminUser, AuthProvider, login_not_required
 from starlette_admin.base import BaseAdmin
-from keycloak.oauth import KeycloakOAuth2, User
+from keycloak_oauth import KeycloakOAuth2, User
 
 
 class KeycloakAuthProvider(AuthProvider):

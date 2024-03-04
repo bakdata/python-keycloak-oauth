@@ -44,8 +44,8 @@ jobs:
       - name: Typing (pyright)
         run: poetry run pre-commit run pyright --all-files
 
-      # - name: Test
-      #   run: poetry run pytest tests
+      - name: Test
+        run: poetry run pytest tests
 
   publish-snapshot-version:
     name: Publish snapshot to TestPyPI
