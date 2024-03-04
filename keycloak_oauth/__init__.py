@@ -61,9 +61,9 @@ class KeycloakOAuth2:
 
         metadata = await self.keycloak.load_server_metadata()
         auth_method = PrivateKeyJWT(metadata["token_endpoint"])
+        self.keycloak.client_auth_methods = [auth_method]
         self.keycloak.client_kwargs.update(
             {
-                "client_auth_methods": [auth_method],
                 "token_endpoint_auth_method": auth_method.name,
             }
         )
