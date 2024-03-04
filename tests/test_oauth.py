@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+from time import sleep
 from typing import Annotated, Generator
 from fastapi import Depends, FastAPI, Request, status
 import httpx
 from starlette.middleware.sessions import SessionMiddleware
-from keycloak import KeycloakAdmin
+from keycloak import KeycloakAdmin, KeycloakAuthenticationError
 import pytest
 from keycloak_oauth import KeycloakOAuth2, User
 from testcontainers.keycloak import KeycloakContainer
@@ -30,7 +31,15 @@ class TestKeycloakOAuth2:
             container, KeycloakContainer
         )  # HACK: wrong type annotation in testcontainers `with_command`
         container.with_bind_ports(container.port, container.port).start()
-        keycloak = container.get_client()
+
+        while True:
+            try:
+                keycloak = container.get_client()
+            except KeycloakAuthenticationError:
+                sleep(0.1)
+                continue
+            break
+
         assert keycloak.connection.base_url == container.get_base_api_url() + "/"
         keycloak.import_realm(
             json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
