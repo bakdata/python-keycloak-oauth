@@ -11,7 +11,8 @@ pip install keycloak-oauth[fastapi]
 ```
 
 ```python
-from fastapi import FastAPI
+from typing import Annotated
+from fastapi import FastAPI, Request, Depends
 from starlette.middleware.sessions import SessionMiddleware
 from backend.settings import settings, BASE_URL, SECRET_KEY  # secrets
 from keycloak_oauth import KeycloakOAuth2
@@ -29,6 +30,13 @@ keycloak.setup_fastapi_routes()
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.include_router(keycloak.router, prefix="/auth")
+
+@app.get("/")
+def index(
+    request: Request, user: Annotated[User, Depends(KeycloakOAuth2.get_user)]
+):
+    """Protected endpoint, will return 401 Unauthorized if not signed in."""
+    return f"Hello {user.name}"
 ```
 
 We now expose the API endpoints for Keycloak:
@@ -65,6 +73,8 @@ admin = Admin(
     auth_provider=KeycloakAuthProvider(keycloak),
     middlewares=[Middleware(SessionMiddleware, secret_key=SECRET_KEY)],
 )
+
+admin.add_view(...)
 ```
 
 ## Development
