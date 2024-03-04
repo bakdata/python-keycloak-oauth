@@ -61,3 +61,10 @@ class KeycloakAuthProvider(AuthProvider):
                 name="authorize_keycloak",
             )
         )
+        admin.routes.append(
+            Route(
+                "/auth/certs",
+                self.keycloak.public_keys,
+                methods=["GET"],
+            )
+        )
