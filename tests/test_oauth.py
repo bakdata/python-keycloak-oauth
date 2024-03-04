@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
-from time import sleep
 from typing import Annotated, Generator
 from fastapi import Depends, FastAPI, Request, status
 import httpx
 from starlette.middleware.sessions import SessionMiddleware
-from keycloak import KeycloakAdmin, KeycloakAuthenticationError
+from keycloak import KeycloakAdmin
 import pytest
+from testcontainers.core.waiting_utils import wait_for_logs
 from keycloak_oauth import KeycloakOAuth2, User
 from testcontainers.keycloak import KeycloakContainer
 from fastapi.testclient import TestClient
@@ -31,14 +31,8 @@ class TestKeycloakOAuth2:
             container, KeycloakContainer
         )  # HACK: wrong type annotation in testcontainers `with_command`
         container.with_bind_ports(container.port, container.port).start()
-
-        while True:
-            try:
-                keycloak = container.get_client()
-            except KeycloakAuthenticationError:
-                sleep(0.1)
-                continue
-            break
+        wait_for_logs(container, "Running the server in development mode.")
+        keycloak = container.get_client()
 
         assert keycloak.connection.base_url == container.get_base_api_url() + "/"
         keycloak.import_realm(
