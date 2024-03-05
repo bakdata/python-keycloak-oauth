@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Any, Sequence
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
@@ -50,6 +50,10 @@ class KeycloakAuthProvider(AuthProvider):
     async def handle_auth_callback(self, request: Request) -> RedirectResponse:
         return await self.keycloak.auth(request)
 
+    @login_not_required
+    async def public_keys(self) -> dict[str, Any]:
+        return await self.keycloak.public_keys()
+
     def setup_admin(self, admin: BaseAdmin) -> None:
         super().setup_admin(admin)
         """add custom authentication callback route"""
@@ -64,7 +68,7 @@ class KeycloakAuthProvider(AuthProvider):
         admin.routes.append(
             Route(
                 "/auth/certs",
-                self.keycloak.public_keys,
+                self.public_keys,
                 methods=["GET"],
             )
         )
