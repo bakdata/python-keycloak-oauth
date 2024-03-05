@@ -78,7 +78,7 @@ class KeycloakOAuth2:
         self.router.add_api_route("/logout", self.logout)
         self.router.add_api_route("/certs", self.public_keys)
 
-    async def public_keys(self) -> dict[str, Any]:
+    async def public_keys(self, request: Request) -> dict[str, Any]:
         return {"keys": [self.pub]}
 
     async def login_page(
