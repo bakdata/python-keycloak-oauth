@@ -1,7 +1,7 @@
-from typing import Any, Sequence
+from typing import Sequence
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import RedirectResponse
+from starlette.responses import JSONResponse, RedirectResponse
 from starlette.routing import Route
 from starlette_admin.auth import AdminUser, AuthProvider, login_not_required
 from starlette_admin.base import BaseAdmin
@@ -51,8 +51,8 @@ class KeycloakAuthProvider(AuthProvider):
         return await self.keycloak.auth(request)
 
     @login_not_required
-    async def public_keys(self, request: Request) -> dict[str, Any]:
-        return await self.keycloak.public_keys(request)
+    async def public_keys(self, request: Request) -> JSONResponse:
+        return JSONResponse(self.keycloak.public_keys(request))
 
     def setup_admin(self, admin: BaseAdmin) -> None:
         super().setup_admin(admin)
