@@ -51,7 +51,7 @@ class KeycloakAuthProvider(AuthProvider):
         return await self.keycloak.auth(request)
 
     @login_not_required
-    async def public_keys(self) -> dict[str, Any]:
+    async def public_keys(self, request: Request) -> dict[str, Any]:
         return await self.keycloak.public_keys()
 
     def setup_admin(self, admin: BaseAdmin) -> None:
