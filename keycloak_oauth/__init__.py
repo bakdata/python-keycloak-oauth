@@ -1,4 +1,5 @@
 from pathlib import Path
+import ssl
 from typing import Any
 import pydantic
 from authlib.common.security import generate_token
@@ -36,6 +37,11 @@ class KeycloakOAuth2:
         self._logout_page = logout_target
 
         oauth = OAuth()
+
+        # HACK: load custom certificate including default certifi cacert chain
+        if verify := client_kwargs.get("verify"):
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23, verify=verify)
+            client_kwargs["verify"] = ssl_context
 
         oauth.register(
             name="keycloak",
