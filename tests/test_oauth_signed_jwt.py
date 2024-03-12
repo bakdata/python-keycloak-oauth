@@ -65,7 +65,9 @@ class TestKeycloakOAuth2SignedJWT:
                 "scope": "openid profile email",
             },
         )
-        await keycloak_oauth.setup_signed_jwt()
+        await keycloak_oauth.setup_signed_jwt(
+            self.RESOURCES_PATH / "keypair.pem", self.RESOURCES_PATH / "publickey.crt"
+        )
         keycloak_oauth.setup_fastapi_routes()
         app.include_router(keycloak_oauth.router, prefix="/auth")
         app.add_middleware(SessionMiddleware, secret_key="!secret")

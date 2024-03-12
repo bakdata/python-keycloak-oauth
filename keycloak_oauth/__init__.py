@@ -56,13 +56,15 @@ class KeycloakOAuth2:
         assert isinstance(oauth.keycloak, StarletteOAuth2App)
         self.keycloak = oauth.keycloak
 
-    async def setup_signed_jwt(self) -> None:
-        # Generated via `openssl genrsa - out keypair.pem 2048`
-        self.keycloak.client_secret = Path("keypair.pem").read_bytes()
+    async def setup_signed_jwt(self, keypair: Path, public_key: Path) -> None:
+        """Setup client authentication for signed JWT.
 
-        # Generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
+        :param keypair: Path to keypair.pem, generated via `openssl genrsa - out keypair.pem 2048`
+        :param public_key: Path to publickey.crt, generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
+        """
+        self.keycloak.client_secret = keypair.read_bytes()
         self.pub = JsonWebKey.import_key(
-            Path("publickey.crt").read_text(), {"kty": "RSA", "use": "sig"}
+            public_key.read_text(), {"kty": "RSA", "use": "sig"}
         ).as_dict()
 
         metadata = await self.keycloak.load_server_metadata()
