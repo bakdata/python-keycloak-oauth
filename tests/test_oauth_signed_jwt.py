@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Annotated, Generator
 from fastapi import Depends, FastAPI, Request, status
 import httpx
+import pytest_asyncio
 from starlette.middleware.sessions import SessionMiddleware
 from keycloak import KeycloakAdmin
 import pytest
@@ -54,17 +55,17 @@ class TestKeycloakOAuth2SignedJWT:
     def app(self) -> FastAPI:
         return FastAPI()
 
-    @pytest.fixture()
-    def client(self, app: FastAPI, keycloak: KeycloakAdmin) -> TestClient:
+    @pytest_asyncio.fixture()
+    async def client(self, app: FastAPI, keycloak: KeycloakAdmin) -> TestClient:
         keycloak_oauth = KeycloakOAuth2(
             client_id="test-client",
             client_secret=None,
             server_metadata_url=f"{keycloak.connection.base_url}/realms/bakdata/.well-known/openid-configuration",
             client_kwargs={
                 "scope": "openid profile email",
-                "code_challenge_method": "S256",
             },
         )
+        await keycloak_oauth.setup_signed_jwt()
         keycloak_oauth.setup_fastapi_routes()
         app.include_router(keycloak_oauth.router, prefix="/auth")
         app.add_middleware(SessionMiddleware, secret_key="!secret")
@@ -92,14 +93,17 @@ class TestKeycloakOAuth2SignedJWT:
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
         assert keycloak.connection.realm_name == "bakdata"
 
-    def test_public_keys_endpoint(self, client: TestClient):
-        assert client.get("/auth/certs").json()["keys"] == []
+    @pytest.mark.asyncio
+    async def test_public_keys_endpoint(self, client: TestClient):
+        assert client.get("/auth/certs").json()["keys"]
 
+    @pytest.mark.asyncio
     @pytest.mark.parametrize("endpoint", ["/", "/foo", "/bar"])
-    def test_protected_endpoint(self, client: TestClient, endpoint: str):
+    async def test_protected_endpoint(self, client: TestClient, endpoint: str):
         response = client.get(endpoint)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "query_params",
         [
@@ -108,7 +112,7 @@ class TestKeycloakOAuth2SignedJWT:
             httpx.QueryParams({"next": "/bar", "unrelated": "should be hidden"}),
         ],
     )
-    def test_login_redirect(
+    async def test_login_redirect(
         self,
         client: TestClient,
         keycloak: KeycloakAdmin,
@@ -129,12 +133,14 @@ class TestKeycloakOAuth2SignedJWT:
         else:
             assert not redirect_uri.params
 
-    def test_logout_redirect(self, client: TestClient):
+    @pytest.mark.asyncio
+    async def test_logout_redirect(self, client: TestClient):
         response = client.get("/auth/logout", follow_redirects=False)
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
         assert response.headers["location"] == "/"
 
-    def test_auth_flow(self, client: TestClient, keycloak: KeycloakAdmin):
+    @pytest.mark.asyncio
+    async def test_auth_flow(self, client: TestClient, keycloak: KeycloakAdmin):
         # try accessing protected endpoint
         response = client.get("/", follow_redirects=False)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
