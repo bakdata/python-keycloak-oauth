@@ -18,7 +18,7 @@ from twill.commands import form_value
 class TestKeycloakOAuth2SignedJWT:
     RESOURCES_PATH = Path(__file__).parent.absolute() / "resources/keycloak"
 
-    @pytest.fixture(scope="session")
+    @pytest.fixture(scope="class")
     def keycloak(self) -> Generator[KeycloakAdmin, None, None]:
         container = (
             KeycloakContainer()
