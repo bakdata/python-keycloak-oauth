@@ -1,5 +1,6 @@
 from typing import Any
 import pydantic
+from authlib.common.security import generate_token
 from authlib.integrations.starlette_client import OAuth, StarletteOAuth2App
 from authlib.jose import JWTClaims, JsonWebToken, JsonWebKey
 
@@ -28,6 +29,7 @@ class KeycloakOAuth2:
         base_url: str = "/",
         logout_target: str = "/",
     ) -> None:
+        self.code_verifier = generate_token(48)
         self._base_url = base_url
         self._logout_page = logout_target
         oauth = OAuth()
@@ -38,6 +40,7 @@ class KeycloakOAuth2:
             client_secret=client_secret,
             server_metadata_url=server_metadata_url,
             client_kwargs=client_kwargs,
+            code_challenge_method="S256",
         )
         assert isinstance(oauth.keycloak, StarletteOAuth2App)
         self.keycloak = oauth.keycloak
@@ -62,7 +65,9 @@ class KeycloakOAuth2:
         )
         if next := request.query_params.get("next"):
             redirect_uri = redirect_uri.include_query_params(next=next)
-        return await self.keycloak.authorize_redirect(request, redirect_uri)
+        return await self.keycloak.authorize_redirect(
+            request, redirect_uri, code_verifier=self.code_verifier
+        )
 
     async def auth(self, request: Request) -> RedirectResponse:
         """Authorize user with Keycloak access token."""
