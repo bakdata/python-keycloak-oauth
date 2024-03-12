@@ -14,7 +14,7 @@ from twill import browser
 from twill.commands import form_value
 
 
-class TestKeycloakOAuth2:
+class TestKeycloakOAuth2SignedJWT:
     RESOURCES_PATH = Path(__file__).parent.absolute() / "resources/keycloak"
 
     @pytest.fixture(scope="session")
@@ -36,7 +36,7 @@ class TestKeycloakOAuth2:
 
         assert keycloak.connection.base_url == container.get_base_api_url() + "/"
         keycloak.import_realm(
-            json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
+            json.loads(Path(self.RESOURCES_PATH / "realm_signed_jwt.json").read_bytes())
         )
         keycloak.change_current_realm("bakdata")
 
@@ -58,7 +58,7 @@ class TestKeycloakOAuth2:
     def client(self, app: FastAPI, keycloak: KeycloakAdmin) -> TestClient:
         keycloak_oauth = KeycloakOAuth2(
             client_id="test-client",
-            client_secret="ZPSWENNxF0z3rT8xQORol9NpXQFJxiZf",
+            client_secret=None,
             server_metadata_url=f"{keycloak.connection.base_url}/realms/bakdata/.well-known/openid-configuration",
             client_kwargs={
                 "scope": "openid profile email",
@@ -91,6 +91,9 @@ class TestKeycloakOAuth2:
 
     def test_keycloak_setup(self, keycloak: KeycloakAdmin):
         assert keycloak.connection.realm_name == "bakdata"
+
+    def test_public_keys_endpoint(self, client: TestClient):
+        assert client.get("/auth/certs").json()["keys"] == []
 
     @pytest.mark.parametrize("endpoint", ["/", "/foo", "/bar"])
     def test_protected_endpoint(self, client: TestClient, endpoint: str):
