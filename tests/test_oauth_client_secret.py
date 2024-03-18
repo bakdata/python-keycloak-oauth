@@ -14,10 +14,10 @@ from twill import browser
 from twill.commands import form_value
 
 
-class TestKeycloakOAuth2:
+class TestKeycloakOAuth2ClientSecret:
     RESOURCES_PATH = Path(__file__).parent.absolute() / "resources/keycloak"
 
-    @pytest.fixture(scope="session")
+    @pytest.fixture(scope="class")
     def keycloak(self) -> Generator[KeycloakAdmin, None, None]:
         container = (
             KeycloakContainer()
@@ -36,7 +36,9 @@ class TestKeycloakOAuth2:
 
         assert keycloak.connection.base_url == container.get_base_api_url() + "/"
         keycloak.import_realm(
-            json.loads(Path(self.RESOURCES_PATH / "realm.json").read_bytes())
+            json.loads(
+                Path(self.RESOURCES_PATH / "realm_client_secret.json").read_bytes()
+            )
         )
         keycloak.change_current_realm("bakdata")
 

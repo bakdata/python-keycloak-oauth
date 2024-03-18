@@ -30,6 +30,7 @@ pyright = "^1.1.351"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.1"
+pytest-asyncio = "^0.23.5.post1"
 pytest-mock = "^3.12.0"
 python-keycloak = "^3.9.0"
 testcontainers-keycloak = { git = "https://github.com/TheForgottened/testcontainers-python", subdirectory = "keycloak" } # updated Keycloak container: https://github.com/testcontainers/testcontainers-python/pull/369

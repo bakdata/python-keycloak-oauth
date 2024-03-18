@@ -1,8 +1,11 @@
+from pathlib import Path
+import ssl
 from typing import Any
 import pydantic
 from authlib.common.security import generate_token
 from authlib.integrations.starlette_client import OAuth, StarletteOAuth2App
 from authlib.jose import JWTClaims, JsonWebToken, JsonWebKey
+from authlib.oauth2.rfc7523 import PrivateKeyJWT
 
 from starlette import status
 from starlette.datastructures import URL
@@ -23,7 +26,7 @@ class KeycloakOAuth2:
     def __init__(
         self,
         client_id: str,
-        client_secret: str,
+        client_secret: str | bytes | None,
         server_metadata_url: str,
         client_kwargs: dict[str, Any],
         base_url: str = "/",
@@ -32,7 +35,14 @@ class KeycloakOAuth2:
         self.code_verifier = generate_token(48)
         self._base_url = base_url
         self._logout_page = logout_target
+
         oauth = OAuth()
+
+        # HACK: load custom certificate including default certifi cacert chain
+        if verify := client_kwargs.get("verify"):
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23, verify=verify)
+            client_kwargs["verify"] = ssl_context
+
         oauth.register(
             name="keycloak",
             # client_id and client_secret are created in keycloak
@@ -42,8 +52,29 @@ class KeycloakOAuth2:
             client_kwargs=client_kwargs,
             code_challenge_method="S256",
         )
+
         assert isinstance(oauth.keycloak, StarletteOAuth2App)
         self.keycloak = oauth.keycloak
+
+    async def setup_signed_jwt(self, keypair: Path, public_key: Path) -> None:
+        """Setup client authentication for signed JWT.
+
+        :param keypair: Path to keypair.pem, generated via `openssl genrsa - out keypair.pem 2048`
+        :param public_key: Path to publickey.crt, generated via `openssl rsa -in keypair.pem -pubout -out publickey.crt`
+        """
+        self.keycloak.client_secret = keypair.read_bytes()
+        self.pub = JsonWebKey.import_key(
+            public_key.read_text(), {"kty": "RSA", "use": "sig"}
+        ).as_dict()
+
+        metadata = await self.keycloak.load_server_metadata()
+        auth_method = PrivateKeyJWT(metadata["token_endpoint"])
+        self.keycloak.client_auth_methods = [auth_method]
+        self.keycloak.client_kwargs.update(
+            {
+                "token_endpoint_auth_method": auth_method.name,
+            }
+        )
 
     def setup_fastapi_routes(self) -> None:
         """Create FastAPI router and register API endpoints."""
@@ -53,6 +84,10 @@ class KeycloakOAuth2:
         self.router.add_api_route("/login", self.login_page)
         self.router.add_api_route("/callback", self.auth)
         self.router.add_api_route("/logout", self.logout)
+        self.router.add_api_route("/certs", self.public_keys)
+
+    async def public_keys(self, request: Request) -> dict[str, Any]:
+        return {"keys": [self.pub]}
 
     async def login_page(
         self, request: Request, redirect_target: str | None = None
